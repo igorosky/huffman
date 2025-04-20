@@ -1,20 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 project(HuffmanEncoder CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion)
 
-file(GLOB_RECURSE SRC_FILES src/*.cpp)
-
 add_library(
     HuffmanEncoder
-    SHARED
-    ${SRC_FILES}
+    INTERFACE
 )
 
-target_include_directories(HuffmanEncoder PUBLIC include)
+target_include_directories(HuffmanEncoder INTERFACE include)
 
 if(CMAKE_TESTING_ENABLED)
     enable_testing()

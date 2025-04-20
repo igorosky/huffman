@@ -47,14 +47,18 @@ fermentum non aliquet eu, viverra vitae risus.Quisque luctus mollis lorem, \
 aliquam gravida lacus auctor in.Aenean a malesuada ante, sed tincidunt purus."
 
 TEST(Huffman, BasicAssertions) {
-  huffman::HuffmanTreeBuilder builder;
+  huffman::HuffmanTreeBuilder<char> builder;
   std::string text = LOREM_IPSUM;
-  builder.read_text(text);
-  huffman::HuffmanCoder coder(builder.build());
-  auto encoded = coder.encode(text);
+  builder.read_text(text.begin(), text.end());
+  huffman::HuffmanCoder<char> coder(builder.build());
+  auto encoded = coder.encode(text.begin(), text.end());
   ASSERT_TRUE(encoded.has_value()) << "Encoded successfully";
   EXPECT_LE(encoded.value().size(), text.size()) << "Encoded version is equal or shorter";
   auto ans = coder.decode(encoded.value(), text.size());
   ASSERT_TRUE(ans.has_value()) << "Decoded successfully";
-  EXPECT_EQ(ans.value(), text) << "Decoded text matches initial text";
+  std::string returnred_value;
+  for (auto c : ans.value()) {
+    returnred_value += c;
+  }
+  EXPECT_EQ(returnred_value, text) << "Decoded text matches initial text";
 }
