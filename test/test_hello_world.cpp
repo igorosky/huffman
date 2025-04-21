@@ -50,11 +50,32 @@ TEST(Huffman, BasicAssertions) {
   huffman::HuffmanTreeBuilder<char> builder;
   std::string text = LOREM_IPSUM;
   builder.read_text(text.begin(), text.end());
-  huffman::HuffmanCoder<char> coder(builder.build());
+  auto tree = builder.build();
+  ASSERT_TRUE(tree.has_value()) << "Tree has been constructed";
+  huffman::HuffmanCoder<char> coder(tree.value());
   auto encoded = coder.encode(text.begin(), text.end());
   ASSERT_TRUE(encoded.has_value()) << "Encoded successfully";
   EXPECT_LE(encoded.value().size(), text.size()) << "Encoded version is equal or shorter";
-  auto ans = coder.decode(encoded.value(), text.size());
+  auto ans = coder.decode(encoded.value().begin(), encoded.value().end(), text.size());
+  ASSERT_TRUE(ans.has_value()) << "Decoded successfully";
+  std::string returnred_value;
+  for (auto c : ans.value()) {
+    returnred_value += c;
+  }
+  EXPECT_EQ(returnred_value, text) << "Decoded text matches initial text";
+}
+
+TEST(Huffman, Limit) {
+  huffman::HuffmanTreeBuilder<char> builder;
+  std::string text = LOREM_IPSUM;
+  builder.read_text(text.begin(), text.end());
+  auto tree = builder.build_limited_size(15);
+  ASSERT_TRUE(tree.has_value()) << "Tree has been constructed";
+  huffman::HuffmanCoder<char> coder(tree.value());
+  auto encoded = coder.encode(text.begin(), text.end());
+  ASSERT_TRUE(encoded.has_value()) << "Encoded successfully";
+  EXPECT_LE(encoded.value().size(), text.size()) << "Encoded version is equal or shorter";
+  auto ans = coder.decode(encoded.value().begin(), encoded.value().end(), text.size());
   ASSERT_TRUE(ans.has_value()) << "Decoded successfully";
   std::string returnred_value;
   for (auto c : ans.value()) {

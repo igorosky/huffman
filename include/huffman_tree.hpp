@@ -12,12 +12,15 @@ class HuffmanCoder;
 template<HUFFMAN_TYPE T>
 class HuffmanTreeBuilder;
 template<HUFFMAN_TYPE T>
+class LimitedHuffmanTreeBuilder;
+template<HUFFMAN_TYPE T>
 class HuffmanTree {
   std::vector<std::variant<std::pair<size_t, size_t>, T>> _tree;
   std::unordered_map<T, std::vector<bool>> _codes;
 
   friend HuffmanTreeBuilder<T>;
   friend HuffmanCoder<T>;
+  friend LimitedHuffmanTreeBuilder<T>;
 
   explicit HuffmanTree(decltype(_tree), decltype(_codes));
 

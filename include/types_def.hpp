@@ -7,6 +7,7 @@ namespace huffman {
 template<typename T>
 concept HuffmanType = requires(T t) {
   { std::hash<T>{ }(t) }->std::convertible_to<size_t>;
+  { t < t }->std::same_as<bool>;
 };
 
 template<typename T, typename Y>

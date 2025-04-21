@@ -17,7 +17,9 @@ public:
   template<typename I>
   ITER_REQUIREMENT(I, T)
   std::optional<std::vector<char>> encode(I, I) const;
-  std::optional<std::vector<T>> decode(const std::vector<char>& data, size_t len) const;
+  template<typename I>
+  ITER_REQUIREMENT(I, char)
+  std::optional<std::vector<T>> decode(I begin, I end, size_t len) const;
 };
 }  // namespace huffman
 
@@ -56,22 +58,32 @@ std::optional<std::vector<char>> huffman::HuffmanCoder<T>::encode(I begin, I end
 }
 
 template<HUFFMAN_TYPE T>
-std::optional<std::vector<T>> huffman::HuffmanCoder<T>::decode(const std::vector<char>& data, size_t len) const {
+template<typename I>
+ITER_REQUIREMENT(I, char)
+std::optional<std::vector<T>> huffman::HuffmanCoder<T>::decode(I begin, I end, size_t len) const {
   size_t p = 0;
   size_t q = 0;
   if (auto c = std::get_if<T>(&_huffman_tree._tree[0])) {
     return std::vector(len, *c);
   }
   std::vector<T> ans;
-  ans.reserve(len);
+  if constexpr (HAS_MINUS(end, begin) && std::is_convertible_v<decltype(end - begin), size_t>) {
+    ans.reserve(static_cast<size_t>(end - begin));
+  }
   while (ans.size() < len) {
     auto [left, right] = std::get<std::pair<size_t, size_t>>(_huffman_tree._tree[q]);
-    q = ((data[p / 8] & (0x80 >> (p % 8))) != 0) ? right : left;
+    q = ((*begin & (0x80 >> (p % 8))) != 0) ? right : left;
     if (auto c = std::get_if<T>(&_huffman_tree._tree[q])) {
       ans.push_back(*c);
       q = 0;
     }
     ++p;
+    if (p % 8 == 0) {
+      ++begin;
+      if (!(begin != end) && ans.size() < len) {
+        return std::nullopt;
+      }
+    }
   }
   return ans;
 }
